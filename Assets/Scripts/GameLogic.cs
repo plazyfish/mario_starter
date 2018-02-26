@@ -24,4 +24,5 @@ public class GameLogic : MonoBehaviour {
 			Time.timeScale = 0.0f;
 		}
 	}
+
 }

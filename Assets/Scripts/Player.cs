@@ -8,6 +8,8 @@ public class Player : MonoBehaviour {
 	public float speed = 6.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
+    public int score = 0; //initial score
+    public float ySpeed = 0;
 	private Vector3 moveDirection = Vector3.zero;
 
 	public int Lives = 3; // number of lives the player hs
@@ -32,20 +34,37 @@ public class Player : MonoBehaviour {
 	{
 		// get the character controller attached to the player game object
 		CharacterController controller = GetComponent<CharacterController>();
+        ySpeed = moveDirection.y;
+       
+       
 
-
-		// check to see if the player is on the ground
-		if (controller.isGrounded) 
+        // check to see if the player is on the ground
+        if (controller.isGrounded) 
 		{
-			// set the movement direction based on user input and the desired speed
-			moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
-			moveDirection = transform.TransformDirection(moveDirection);
-			moveDirection *= speed;
+            // set the movement direction based on user input and the desired speed
+            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
+            moveDirection = transform.TransformDirection(moveDirection);
 
-			// check to see if the player should jump
-			if (Input.GetButton("Jump"))
-				moveDirection.y = jumpSpeed;
-		}
+            moveDirection *= speed;
+            // check to see if the player should jump
+            if (Input.GetButton("Jump"))
+                moveDirection.y = jumpSpeed;
+
+        }
+        if (!controller.isGrounded)
+        {
+            // set the movement direction based on user input and the desired speed
+            moveDirection = new Vector3((this.moveDirection.x + Input.GetAxis("Horizontal")*speed), this.moveDirection.y, 0);
+            if (moveDirection.x > speed)
+            {
+                moveDirection.x = speed;
+            }
+            else if (moveDirection.x < -speed)
+            {
+                moveDirection.x = -speed;
+            }
+            moveDirection = transform.TransformDirection(moveDirection);
+        }
 
 		// apply gravity to movement direction
 		moveDirection.y -= gravity * Time.deltaTime;
@@ -53,4 +72,26 @@ public class Player : MonoBehaviour {
 		// make the call to move the character controller
 		controller.Move(moveDirection * Time.deltaTime);
 	}
+    public void enemyCollision()
+    {
+        CharacterController controller = GetComponent<CharacterController>();
+        if (moveDirection.y < 0)
+        {
+            if (controller.isGrounded)
+            {
+                Lives--;
+                Reset();
+            }
+            else
+            {
+                moveDirection.y = jumpSpeed;
+                score += 20;
+            }
+        }
+    }
+
+    public Vector3 getMoveDirection()
+    {
+        return moveDirection;
+    }
 }
